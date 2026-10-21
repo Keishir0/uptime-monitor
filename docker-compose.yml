@@ -1,0 +1,45 @@
+name: uptime-monitor
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: uptime-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: uptime
+      POSTGRES_PASSWORD: uptime_secret
+      POSTGRES_DB: uptime_monitor
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      # 5433 no host para não conflitar com outro Postgres local na 5432
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # Postgres 18+ guarda os dados em /var/lib/postgresql/<versão>/docker
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptime -d uptime_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    container_name: uptime-redis
+    restart: unless-stopped
+    # AOF para não perder jobs agendados em restart; noeviction é exigido pelo BullMQ
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:

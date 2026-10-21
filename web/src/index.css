@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/*
+ * Tokens semânticos. Os componentes usam só os papéis (bg-surface, text-fg-2,
+ * bg-good...), então o tema escuro é só outro conjunto de valores aqui.
+ * Status (good/warn/bad) segue a paleta reservada de status; a série do gráfico
+ * usa o slot categórico 1 (azul), distinto das cores de status.
+ */
+:root {
+  color-scheme: light;
+  --bg: #f4f4f1;
+  --surface: #fcfcfb;
+  --surface-2: #efeee9;
+  --line: #e2e0d9;
+  --fg: #0b0b0b;
+  --fg-2: #52514e;
+  --muted: #7d7c77;
+  --accent: #2a78d6;
+  --accent-fg: #ffffff;
+  --series: #2a78d6;
+  --good: #0ca30c;
+  --warn: #fab219;
+  --bad: #d03b3b;
+  --idle: #c9c7bf;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111110;
+    --surface: #1a1a19;
+    --surface-2: #242422;
+    --line: #2f2f2c;
+    --fg: #f0efec;
+    --fg-2: #c3c2b7;
+    --muted: #8f8e87;
+    --accent: #3987e5;
+    --accent-fg: #ffffff;
+    --series: #3987e5;
+    --idle: #3d3d39;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111110;
+  --surface: #1a1a19;
+  --surface-2: #242422;
+  --line: #2f2f2c;
+  --fg: #f0efec;
+  --fg-2: #c3c2b7;
+  --muted: #8f8e87;
+  --accent: #3987e5;
+  --accent-fg: #ffffff;
+  --series: #3987e5;
+  --idle: #3d3d39;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-series: var(--series);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-idle: var(--idle);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,119 @@
+// Prisma 7: a URL de conexão fica em prisma.config.ts e o client é
+// instanciado com o driver adapter @prisma/adapter-pg.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ─────────────────────────────────────────────
+
+enum HttpMethod {
+  GET
+  HEAD
+  POST
+}
+
+/// Estado agregado do monitor (atualizado pelo worker a cada check).
+enum MonitorStatus {
+  PENDING // ainda não foi checado
+  UP
+  DOWN
+  PAUSED
+}
+
+/// Resultado de um check individual.
+enum CheckStatus {
+  UP
+  DOWN
+}
+
+enum WebhookProvider {
+  DISCORD
+  SLACK
+}
+
+// ─── Models ────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String   @db.VarChar(120)
+  email          String   @unique @db.VarChar(255)
+  passwordHash   String   @map("password_hash")
+  /// Slug da página pública de status: /status/:statusPageSlug
+  statusPageSlug String?  @unique @map("status_page_slug") @db.VarChar(64)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  monitors Monitor[]
+
+  @@map("users")
+}
+
+model Monitor {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  name            String     @db.VarChar(120)
+  url             String     @db.VarChar(2048)
+  method          HttpMethod @default(GET)
+  intervalSeconds Int        @default(60) @map("interval_seconds")
+  timeoutMs       Int        @default(10000) @map("timeout_ms")
+  expectedStatus  Int        @default(200) @map("expected_status")
+  isActive        Boolean    @default(true) @map("is_active")
+  /// Exibir este monitor na página pública de status do usuário
+  isPublic        Boolean    @default(false) @map("is_public")
+
+  // Alertas (Discord/Slack)
+  webhookUrl       String?          @map("webhook_url") @db.VarChar(2048)
+  webhookProvider  WebhookProvider? @map("webhook_provider")
+  /// Falhas consecutivas necessárias para considerar DOWN e alertar (evita flapping)
+  failureThreshold Int              @default(2) @map("failure_threshold")
+
+  // Estado desnormalizado: evita varrer CheckLog para montar o dashboard
+  status              MonitorStatus @default(PENDING)
+  consecutiveFailures Int           @default(0) @map("consecutive_failures")
+  lastCheckedAt       DateTime?     @map("last_checked_at") @db.Timestamptz(3)
+  lastStatusChangeAt  DateTime?     @map("last_status_change_at") @db.Timestamptz(3)
+  lastLatencyMs       Int?          @map("last_latency_ms")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkLogs CheckLog[]
+
+  /// Cobre também buscas só por userId (prefixo do índice composto)
+  @@index([userId, status])
+  /// Scheduler: carrega monitores ativos para registrar os repeatable jobs
+  @@index([isActive])
+  @@map("monitors")
+}
+
+/// Série temporal de checks. Alto volume: PK BigInt sequencial (índice mais
+/// compacto que UUID) e índices pensados para leitura por janela de tempo.
+model CheckLog {
+  id         BigInt      @id @default(autoincrement())
+  monitorId  String      @map("monitor_id") @db.Uuid
+  status     CheckStatus
+  statusCode Int?        @map("status_code")
+  latencyMs  Int?        @map("latency_ms")
+  /// Mensagem de erro de rede/timeout/status inesperado
+  error      String?     @db.VarChar(1024)
+  checkedAt  DateTime    @default(now()) @map("checked_at") @db.Timestamptz(3)
+
+  monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  /// Gráficos de latência e blocos de uptime: WHERE monitor_id = ? AND checked_at >= ? ORDER BY checked_at DESC
+  @@index([monitorId, checkedAt(sort: Desc)])
+  /// Histórico de incidentes: apenas falhas de um monitor no período
+  @@index([monitorId, status, checkedAt(sort: Desc)])
+  /// Job de retenção (DELETE WHERE checked_at < ?). BRIN é minúsculo e ideal
+  /// para colunas que crescem em ordem de inserção.
+  @@index([checkedAt], type: Brin)
+  @@map("check_logs")
+}
