@@ -80,7 +80,7 @@ function MonitorForm({ initial, monitorId }: { initial: MonitorInput; monitorId?
   const backTo = monitorId ? `/monitors/${monitorId}` : "/";
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 lg:max-w-none">
       <div>
         <Link to={backTo} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-fg">
           <ArrowLeft className="size-4" aria-hidden />
@@ -90,112 +90,115 @@ function MonitorForm({ initial, monitorId }: { initial: MonitorInput; monitorId?
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
-        <Card className="p-5">
-          <fieldset className="flex flex-col gap-4">
-            <legend className="mb-4 text-sm font-semibold">O que monitorar</legend>
-            <Field label="Nome" error={fieldError("name")}>
-              {(id, d) => (
-                <Input id={id} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="API de pagamentos" aria-describedby={d} aria-invalid={Boolean(fieldError("name"))} autoFocus={!monitorId} />
-              )}
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-[120px_1fr]">
-              <Field label="Método" error={fieldError("method")}>
+        {/* Em telas largas as três seções ficam lado a lado e o formulário cabe na tela sem rolar. */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="p-5">
+            <fieldset className="flex flex-col gap-4">
+              <legend className="mb-4 text-sm font-semibold">O que monitorar</legend>
+              <Field label="Nome" error={fieldError("name")}>
                 {(id, d) => (
-                  <Select id={id} value={form.method} onChange={(e) => set("method", e.target.value as HttpMethod)} aria-describedby={d}>
-                    <option value="GET">GET</option>
-                    <option value="HEAD">HEAD</option>
-                    <option value="POST">POST</option>
-                  </Select>
+                  <Input id={id} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="API de pagamentos" aria-describedby={d} aria-invalid={Boolean(fieldError("name"))} autoFocus={!monitorId} />
                 )}
               </Field>
-              <Field label="URL" error={fieldError("url")}>
-                {(id, d) => (
-                  <Input id={id} type="url" inputMode="url" value={form.url} onChange={(e) => set("url", e.target.value)} placeholder="https://api.exemplo.com/health" aria-describedby={d} aria-invalid={Boolean(fieldError("url"))} />
-                )}
-              </Field>
-            </div>
-          </fieldset>
-        </Card>
-
-        <Card className="p-5">
-          <fieldset className="grid gap-4 sm:grid-cols-2">
-            <legend className="mb-4 text-sm font-semibold">Como checar</legend>
-            <Field label="Intervalo" error={fieldError("intervalSeconds")}>
-              {(id, d) => (
-                <Select id={id} value={form.intervalSeconds} onChange={(e) => set("intervalSeconds", Number(e.target.value))} aria-describedby={d}>
-                  {INTERVALS.map((i) => (
-                    <option key={i.value} value={i.value}>
-                      {i.label}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-            <Field label="Timeout (ms)" hint="Entre 1.000 e 30.000 ms, menor que o intervalo" error={fieldError("timeoutMs")}>
-              {(id, d) => (
-                <Input id={id} type="number" min={1000} max={30000} step={500} value={form.timeoutMs} onChange={(e) => set("timeoutMs", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("timeoutMs"))} />
-              )}
-            </Field>
-            <Field label="Status HTTP esperado" error={fieldError("expectedStatus")}>
-              {(id, d) => (
-                <Input id={id} type="number" min={100} max={599} value={form.expectedStatus} onChange={(e) => set("expectedStatus", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("expectedStatus"))} />
-              )}
-            </Field>
-            <Field label="Falhas seguidas para alertar" hint="Evita alertas por oscilações pontuais" error={fieldError("failureThreshold")}>
-              {(id, d) => (
-                <Input id={id} type="number" min={1} max={10} value={form.failureThreshold} onChange={(e) => set("failureThreshold", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("failureThreshold"))} />
-              )}
-            </Field>
-          </fieldset>
-        </Card>
-
-        <Card className="p-5">
-          <fieldset className="flex flex-col gap-4">
-            <legend className="mb-4 text-sm font-semibold">Alertas e visibilidade</legend>
-            <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
-              <Field label="Webhook" error={fieldError("webhookProvider")}>
-                {(id, d) => (
-                  <Select
-                    id={id}
-                    value={form.webhookProvider ?? ""}
-                    onChange={(e) => set("webhookProvider", (e.target.value || null) as WebhookProvider | null)}
-                    aria-describedby={d}
-                  >
-                    <option value="">Sem alertas</option>
-                    <option value="DISCORD">Discord</option>
-                    <option value="SLACK">Slack</option>
-                  </Select>
-                )}
-              </Field>
-              {form.webhookProvider && (
-                <Field
-                  label="URL do webhook"
-                  hint={form.webhookProvider === "DISCORD" ? "Canal → Editar → Integrações → Webhooks" : "Apps → Incoming Webhooks"}
-                  error={fieldError("webhookUrl")}
-                >
+              <div className="grid gap-4 sm:grid-cols-[120px_1fr]">
+                <Field label="Método" error={fieldError("method")}>
                   {(id, d) => (
-                    <Input
-                      id={id}
-                      type="url"
-                      value={form.webhookUrl ?? ""}
-                      onChange={(e) => set("webhookUrl", e.target.value)}
-                      placeholder={form.webhookProvider === "DISCORD" ? "https://discord.com/api/webhooks/…" : "https://hooks.slack.com/services/…"}
-                      aria-describedby={d}
-                      aria-invalid={Boolean(fieldError("webhookUrl"))}
-                    />
+                    <Select id={id} value={form.method} onChange={(e) => set("method", e.target.value as HttpMethod)} aria-describedby={d}>
+                      <option value="GET">GET</option>
+                      <option value="HEAD">HEAD</option>
+                      <option value="POST">POST</option>
+                    </Select>
                   )}
                 </Field>
-              )}
-            </div>
-            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-line p-3 hover:bg-surface-2">
-              <input type="checkbox" checked={form.isPublic} onChange={(e) => set("isPublic", e.target.checked)} className="mt-0.5 size-4 accent-[var(--accent)]" />
-              <span>
-                <span className="block text-sm font-medium">Exibir na página pública de status</span>
-                <span className="block text-sm text-muted">Mostra só o nome e a disponibilidade — nunca a URL.</span>
-              </span>
-            </label>
-          </fieldset>
-        </Card>
+                <Field label="URL" error={fieldError("url")}>
+                  {(id, d) => (
+                    <Input id={id} type="url" inputMode="url" value={form.url} onChange={(e) => set("url", e.target.value)} placeholder="https://api.exemplo.com/health" aria-describedby={d} aria-invalid={Boolean(fieldError("url"))} />
+                  )}
+                </Field>
+              </div>
+            </fieldset>
+          </Card>
+  
+          <Card className="p-5">
+            <fieldset className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              <legend className="mb-4 text-sm font-semibold">Como checar</legend>
+              <Field label="Intervalo" error={fieldError("intervalSeconds")}>
+                {(id, d) => (
+                  <Select id={id} value={form.intervalSeconds} onChange={(e) => set("intervalSeconds", Number(e.target.value))} aria-describedby={d}>
+                    {INTERVALS.map((i) => (
+                      <option key={i.value} value={i.value}>
+                        {i.label}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <Field label="Timeout (ms)" hint="Entre 1.000 e 30.000 ms, menor que o intervalo" error={fieldError("timeoutMs")}>
+                {(id, d) => (
+                  <Input id={id} type="number" min={1000} max={30000} step={500} value={form.timeoutMs} onChange={(e) => set("timeoutMs", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("timeoutMs"))} />
+                )}
+              </Field>
+              <Field label="Status HTTP esperado" error={fieldError("expectedStatus")}>
+                {(id, d) => (
+                  <Input id={id} type="number" min={100} max={599} value={form.expectedStatus} onChange={(e) => set("expectedStatus", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("expectedStatus"))} />
+                )}
+              </Field>
+              <Field label="Falhas seguidas para alertar" hint="Evita alertas por oscilações pontuais" error={fieldError("failureThreshold")}>
+                {(id, d) => (
+                  <Input id={id} type="number" min={1} max={10} value={form.failureThreshold} onChange={(e) => set("failureThreshold", Number(e.target.value))} aria-describedby={d} aria-invalid={Boolean(fieldError("failureThreshold"))} />
+                )}
+              </Field>
+            </fieldset>
+          </Card>
+  
+          <Card className="p-5">
+            <fieldset className="flex flex-col gap-4">
+              <legend className="mb-4 text-sm font-semibold">Alertas e visibilidade</legend>
+              <div className="grid gap-4 sm:grid-cols-[180px_1fr] lg:grid-cols-1">
+                <Field label="Webhook" error={fieldError("webhookProvider")}>
+                  {(id, d) => (
+                    <Select
+                      id={id}
+                      value={form.webhookProvider ?? ""}
+                      onChange={(e) => set("webhookProvider", (e.target.value || null) as WebhookProvider | null)}
+                      aria-describedby={d}
+                    >
+                      <option value="">Sem alertas</option>
+                      <option value="DISCORD">Discord</option>
+                      <option value="SLACK">Slack</option>
+                    </Select>
+                  )}
+                </Field>
+                {form.webhookProvider && (
+                  <Field
+                    label="URL do webhook"
+                    hint={form.webhookProvider === "DISCORD" ? "Canal → Editar → Integrações → Webhooks" : "Apps → Incoming Webhooks"}
+                    error={fieldError("webhookUrl")}
+                  >
+                    {(id, d) => (
+                      <Input
+                        id={id}
+                        type="url"
+                        value={form.webhookUrl ?? ""}
+                        onChange={(e) => set("webhookUrl", e.target.value)}
+                        placeholder={form.webhookProvider === "DISCORD" ? "https://discord.com/api/webhooks/…" : "https://hooks.slack.com/services/…"}
+                        aria-describedby={d}
+                        aria-invalid={Boolean(fieldError("webhookUrl"))}
+                      />
+                    )}
+                  </Field>
+                )}
+              </div>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-line p-3 hover:bg-surface-2">
+                <input type="checkbox" checked={form.isPublic} onChange={(e) => set("isPublic", e.target.checked)} className="mt-0.5 size-4 accent-[var(--accent)]" />
+                <span>
+                  <span className="block text-sm font-medium">Exibir na página pública de status</span>
+                  <span className="block text-sm text-muted">Mostra só o nome e a disponibilidade — nunca a URL.</span>
+                </span>
+              </label>
+            </fieldset>
+          </Card>
+        </div>
 
         {apiError && !hasFieldErrors && (
           <p role="alert" className="rounded-lg bg-bad/10 px-3 py-2 text-sm text-fg">
