@@ -109,7 +109,8 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
 
 export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select className={clsx(controlClass, "pr-8", className)} {...props}>
+    // pr-8 abre espaço para a seta nativa; no select customizável o chevron já ocupa o próprio espaço.
+    <select className={clsx(controlClass, "pr-8 supports-[appearance:base-select]:pr-3", className)} {...props}>
       {children}
     </select>
   );

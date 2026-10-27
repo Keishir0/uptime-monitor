@@ -94,6 +94,83 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent;
   }
+
+  /*
+   * Select customizável: onde o navegador suporta (`appearance: base-select`),
+   * a lista aberta segue os tokens em vez do popup nativo do sistema. Nos
+   * demais, fica o select nativo — mesmo comportamento, só sem o estilo da lista.
+   */
+  @supports (appearance: base-select) {
+    select,
+    ::picker(select) {
+      appearance: base-select;
+    }
+    select {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    /* Chevron no lugar do triângulo nativo, encostado à direita. */
+    select::picker-icon {
+      content: "";
+      flex: none;
+      margin-left: auto;
+      width: 1rem;
+      height: 1rem;
+      background-color: var(--muted);
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+      transition: rotate 0.15s;
+    }
+    select:open::picker-icon {
+      rotate: 180deg;
+    }
+    ::picker(select) {
+      /* O padrão do navegador abre para o lado com mais espaço (most-block-size)
+         e deixa a lista encolher até o espaço livre (stretch), mesmo cabendo
+         embaixo. Com altura máxima fixa, abre embaixo e só vira quando não couber. */
+      position-try-order: normal;
+      max-block-size: 18rem;
+      margin-block: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      color: var(--fg);
+      box-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
+    }
+    select option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 2.25rem;
+      padding: 0 0.625rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      color: var(--fg-2);
+      cursor: pointer;
+    }
+    select option:hover,
+    select option:focus-visible {
+      outline: none;
+      background: var(--surface-2);
+      color: var(--fg);
+    }
+    select option:checked {
+      color: var(--fg);
+      font-weight: 500;
+    }
+    /* Marca da opção escolhida: quadradinho no acento, à direita (como os marcadores de status). */
+    select option::checkmark {
+      order: 1;
+      margin-left: auto;
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+    }
+  }
 }
 
 @utility tabular {
