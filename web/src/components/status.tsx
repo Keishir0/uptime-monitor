@@ -1,13 +1,13 @@
 import { clsx } from "clsx";
-import { CircleCheck, CircleDashed, CirclePause, CircleX, TriangleAlert, type LucideIcon } from "lucide-react";
+import { CircleCheck, CircleDashed, CircleX, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { MonitorStatus, OverallStatus } from "../lib/types";
 
-// Status nunca é só cor: sempre ícone + rótulo, a cor reforça.
-const MONITOR_STATUS: Record<MonitorStatus, { label: string; icon: LucideIcon; color: string; dot: string }> = {
-  UP: { label: "Online", icon: CircleCheck, color: "text-good", dot: "bg-good" },
-  DOWN: { label: "Fora do ar", icon: CircleX, color: "text-bad", dot: "bg-bad" },
-  PENDING: { label: "Aguardando", icon: CircleDashed, color: "text-muted", dot: "bg-idle" },
-  PAUSED: { label: "Pausado", icon: CirclePause, color: "text-muted", dot: "bg-idle" },
+// Status nunca é só cor: sempre marcador + rótulo, a cor reforça.
+const MONITOR_STATUS: Record<MonitorStatus, { label: string; color: string; dot: string }> = {
+  UP: { label: "Online", color: "text-good", dot: "bg-good" },
+  DOWN: { label: "Fora do ar", color: "text-bad", dot: "bg-bad" },
+  PENDING: { label: "Aguardando", color: "text-muted", dot: "bg-idle" },
+  PAUSED: { label: "Pausado", color: "text-muted", dot: "bg-idle" },
 };
 
 export function statusLabel(status: MonitorStatus) {
@@ -15,22 +15,22 @@ export function statusLabel(status: MonitorStatus) {
 }
 
 export function StatusBadge({ status, size = "md" }: { status: MonitorStatus; size?: "sm" | "md" }) {
-  const { label, icon: Icon, color } = MONITOR_STATUS[status];
+  const { label, color, dot } = MONITOR_STATUS[status];
   return (
-    <span className={clsx("inline-flex items-center gap-1.5 font-medium text-fg", size === "sm" ? "text-xs" : "text-sm")}>
-      <Icon className={clsx(color, size === "sm" ? "size-3.5" : "size-4")} aria-hidden />
+    <span className={clsx("inline-flex items-center gap-2 font-medium", color, size === "sm" ? "text-[13px]" : "text-sm")}>
+      <span className={clsx("size-2 shrink-0", dot)} aria-hidden />
       {label}
     </span>
   );
 }
 
-/** Ponto de status com "pulso" quando fora do ar (chama atenção na lista). */
+/** Marcador quadrado de status, com "pulso" quando fora do ar (chama atenção na lista). */
 export function StatusDot({ status }: { status: MonitorStatus }) {
   const { dot, label } = MONITOR_STATUS[status];
   return (
-    <span className="relative flex size-2.5 shrink-0" role="img" aria-label={label}>
-      {status === "DOWN" && <span className={clsx("absolute inline-flex size-full animate-ping rounded-full opacity-60", dot)} />}
-      <span className={clsx("relative inline-flex size-2.5 rounded-full", dot)} />
+    <span className="relative flex size-2 shrink-0" role="img" aria-label={label}>
+      {status === "DOWN" && <span className={clsx("absolute inline-flex size-full animate-ping opacity-60", dot)} />}
+      <span className={clsx("relative inline-flex size-2", dot)} />
     </span>
   );
 }

@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { LatencyChart } from "../components/LatencyChart";
 import { StatusBadge } from "../components/status";
-import { StatTile } from "../components/StatTile";
+import { StatGrid, StatTile } from "../components/StatTile";
 import { UptimeBars, UptimeLegend } from "../components/UptimeBars";
 import { Button, buttonClasses, Card, CardHeader, ErrorState, Modal, Segmented, Spinner } from "../components/ui";
 import { ApiError } from "../lib/api";
@@ -56,16 +56,18 @@ function MonitorHeader({ monitor }: { monitor: Monitor }) {
         Monitores
       </Link>
 
-      <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-semibold tracking-tight">{monitor.name}</h1>
+          <h1 className="truncate text-[28px] leading-tight font-semibold tracking-tight">{monitor.name}</h1>
           <a
             href={monitor.url}
             target="_blank"
             rel="noreferrer"
-            className="mt-1 inline-flex max-w-full items-center gap-1.5 text-sm text-muted hover:text-fg"
+            className="mt-1.5 inline-flex max-w-full items-center gap-1.5 font-mono text-[13px] text-fg-2 hover:text-fg"
           >
-            <span className="truncate">{monitor.url}</span>
+            <span className="truncate">
+              {monitor.method} {monitor.url}
+            </span>
             <ExternalLink className="size-3.5 shrink-0" aria-hidden />
           </a>
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -126,13 +128,13 @@ function StatsSection({ monitorId }: { monitorId: string }) {
   return (
     <section className="flex flex-col gap-4" aria-labelledby="stats-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="stats-title" className="text-sm font-semibold text-fg">
+        <h2 id="stats-title" className="eyebrow text-fg-2">
           Desempenho
         </h2>
         <Segmented label="Período" value={range} options={RANGE_OPTIONS} onChange={setRange} />
       </div>
 
-      <div className={clsx("grid grid-cols-2 gap-3 transition-opacity lg:grid-cols-4", isFetching && stats && "opacity-70")}>
+      <StatGrid className={clsx("transition-opacity", isFetching && stats && "opacity-70")}>
         <StatTile label="Uptime" value={formatUptime(summary?.uptimePercent, 3)} />
         <StatTile label="Latência média" value={formatLatency(summary?.avgLatencyMs)} />
         <StatTile label="Latência p95" value={formatLatency(summary?.p95LatencyMs)} hint="95% dos checks abaixo disso" />
@@ -141,7 +143,7 @@ function StatsSection({ monitorId }: { monitorId: string }) {
           value={summary ? summary.totalChecks.toLocaleString("pt-BR") : "—"}
           hint={summary ? `${summary.failedChecks.toLocaleString("pt-BR")} com falha` : undefined}
         />
-      </div>
+      </StatGrid>
 
       <Card>
         <CardHeader
@@ -210,7 +212,7 @@ function RecentChecks({ monitorId }: { monitorId: string }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-line text-left text-xs font-medium tracking-wide text-muted uppercase">
+              <tr className="eyebrow border-b border-line text-left">
                 <th className="px-5 py-2.5 font-medium">Status</th>
                 <th className="px-3 py-2.5 font-medium">Horário</th>
                 <th className="px-3 py-2.5 text-right font-medium">HTTP</th>
@@ -222,14 +224,14 @@ function RecentChecks({ monitorId }: { monitorId: string }) {
               {data.data.map((check) => (
                 <tr key={check.id}>
                   <td className="px-5 py-2.5">
-                    <span className="inline-flex items-center gap-1.5 text-fg">
-                      <span className={clsx("size-2 rounded-full", check.status === "UP" ? "bg-good" : "bg-bad")} aria-hidden />
+                    <span className={clsx("inline-flex items-center gap-2 font-medium", check.status === "UP" ? "text-good" : "text-bad")}>
+                      <span className={clsx("size-1.5", check.status === "UP" ? "bg-good" : "bg-bad")} aria-hidden />
                       {check.status === "UP" ? "OK" : "Falha"}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 whitespace-nowrap text-fg-2">{formatDateTime(check.checkedAt)}</td>
-                  <td className="px-3 py-2.5 text-right tabular text-fg-2">{check.statusCode ?? "—"}</td>
-                  <td className="px-3 py-2.5 text-right tabular text-fg-2">{formatLatency(check.latencyMs)}</td>
+                  <td className="px-3 py-2.5 text-right font-mono text-fg-2">{check.statusCode ?? "—"}</td>
+                  <td className="px-3 py-2.5 text-right font-mono text-fg-2">{formatLatency(check.latencyMs)}</td>
                   <td className="max-w-64 truncate px-5 py-2.5 text-muted" title={check.error ?? undefined}>
                     {check.error ?? ""}
                   </td>
@@ -259,7 +261,7 @@ function ConfigCard({ monitor }: { monitor: Monitor }) {
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between gap-4 px-5 py-2.5">
             <dt className="text-muted">{label}</dt>
-            <dd className="text-right text-fg">{value}</dd>
+            <dd className="text-right font-mono text-[13px] text-fg">{value}</dd>
           </div>
         ))}
         <div className="flex items-center justify-between gap-4 px-5 py-2.5">

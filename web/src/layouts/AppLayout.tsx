@@ -9,7 +9,7 @@ import { Spinner } from "../components/ui";
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <span className="flex items-center gap-2 font-semibold tracking-tight whitespace-nowrap text-fg">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-good text-white">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-fg">
         <Activity className="size-4" strokeWidth={2.5} aria-hidden />
       </span>
       <span className={compact ? "max-sm:sr-only" : undefined}>Uptime Monitor</span>
@@ -33,12 +33,12 @@ export function AppLayout() {
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-line bg-surface/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:gap-6 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:gap-7 sm:px-6">
           <Link to="/" aria-label="Uptime Monitor — início">
             <Logo compact />
           </Link>
 
-          <nav className="flex items-center gap-1" aria-label="Principal">
+          <nav className="flex items-stretch gap-1 self-stretch sm:gap-4" aria-label="Principal">
             {navItems.map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
@@ -46,8 +46,9 @@ export function AppLayout() {
                 end={end}
                 className={({ isActive }) =>
                   clsx(
-                    "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-medium transition",
-                    isActive ? "bg-surface-2 text-fg" : "text-muted hover:text-fg",
+                    // Aba ativa: traço no acento, rente à borda inferior do header.
+                    "flex items-center gap-2 px-1.5 text-sm font-medium transition",
+                    isActive ? "text-fg shadow-[inset_0_-2px_0_var(--accent)]" : "text-fg-2 hover:text-fg",
                   )
                 }
               >
@@ -60,7 +61,7 @@ export function AppLayout() {
                 href={`/status/${user.statusPageSlug}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted transition hover:text-fg"
+                className="flex items-center gap-2 px-1.5 text-sm font-medium text-fg-2 transition hover:text-fg"
               >
                 <ExternalLink className="size-4" aria-hidden />
                 <span className="hidden md:inline">Página pública</span>
@@ -69,7 +70,7 @@ export function AppLayout() {
           </nav>
 
           <div className="ml-auto flex items-center gap-1">
-            <span className="mr-2 hidden text-sm text-muted lg:inline">{user.email}</span>
+            <span className="mr-2 hidden font-mono text-[13px] text-fg-2 lg:inline">{user.email}</span>
             <ThemeToggle />
             <button
               type="button"

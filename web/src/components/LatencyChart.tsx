@@ -44,7 +44,7 @@ export function LatencyChart({ series, bucketMinutes, range }: Props) {
             </linearGradient>
           </defs>
 
-          <CartesianGrid vertical={false} stroke="var(--line)" />
+          <CartesianGrid vertical={false} stroke="var(--line)" strokeDasharray="3 3" />
 
           {failureRanges.map((r) => (
             <ReferenceArea key={r.from} x1={r.from} x2={r.to} fill="var(--bad)" fillOpacity={0.12} ifOverflow="hidden" />
@@ -56,7 +56,7 @@ export function LatencyChart({ series, bucketMinutes, range }: Props) {
             scale="time"
             domain={["dataMin", "dataMax"]}
             tickFormatter={tickFormatter}
-            tick={{ fill: "var(--muted)", fontSize: 12 }}
+            tick={{ fill: "var(--muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
             minTickGap={48}
@@ -64,7 +64,7 @@ export function LatencyChart({ series, bucketMinutes, range }: Props) {
           <YAxis
             width={44}
             tickFormatter={(v: number) => `${v}`}
-            tick={{ fill: "var(--muted)", fontSize: 12 }}
+            tick={{ fill: "var(--muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
             allowDecimals={false}
@@ -83,7 +83,7 @@ export function LatencyChart({ series, bucketMinutes, range }: Props) {
             type="monotone"
             dataKey="avgLatencyMs"
             stroke="var(--series)"
-            strokeWidth={2}
+            strokeWidth={1.75}
             fill={`url(#${gradientId})`}
             connectNulls={false}
             dot={false}

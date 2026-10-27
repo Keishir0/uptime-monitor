@@ -46,7 +46,7 @@ export function UptimeBars({ days, uptimePercent }: { days: DailyBar[]; uptimePe
               onPointerEnter={() => setHovered(index)}
               onClick={() => setHovered(index)}
               className={clsx(
-                "min-w-0 flex-1 cursor-default rounded-[2px] transition-opacity",
+                "min-w-0 flex-1 cursor-default rounded-[1px] transition-opacity",
                 tone.className,
                 hovered !== null && hovered !== index && "opacity-50",
                 index < mobileStart && "hidden sm:block",
@@ -82,7 +82,7 @@ export function UptimeBars({ days, uptimePercent }: { days: DailyBar[]; uptimePe
         </div>
       )}
 
-      <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted">
+      <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[11px] text-muted">
         <span>
           <span className="sm:hidden">{Math.min(MOBILE_DAYS, days.length)} dias atrás</span>
           <span className="hidden sm:inline">{days.length} dias atrás</span>
@@ -101,7 +101,7 @@ export function UptimeLegend() {
     <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-2">
       {Object.values(TONES).map((tone) => (
         <li key={tone.label} className="flex items-center gap-1.5">
-          <span className={clsx("size-2.5 rounded-[2px]", tone.className)} aria-hidden />
+          <span className={clsx("size-2", tone.className)} aria-hidden />
           {tone.label}
         </li>
       ))}

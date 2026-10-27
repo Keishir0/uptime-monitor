@@ -1,7 +1,8 @@
-import { ChevronRight, CircleCheck, CircleX, Gauge, Plus, Server, CirclePause } from "lucide-react";
+import { clsx } from "clsx";
+import { ChevronRight, Plus, Server } from "lucide-react";
 import { Link } from "react-router";
 import { StatusBadge, StatusDot } from "../components/status";
-import { StatTile } from "../components/StatTile";
+import { StatGrid, StatTile } from "../components/StatTile";
 import { buttonClasses, Card, EmptyState, ErrorState, Spinner } from "../components/ui";
 import { formatInterval, formatLatency, formatRelative, formatSince, formatUptime } from "../lib/format";
 import { useMonitors } from "../lib/queries";
@@ -14,8 +15,9 @@ export function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Monitores</h1>
-          <p className="mt-1 text-sm text-muted">Disponibilidade e latência dos seus serviços, atualizadas a cada 15 segundos.</p>
+          <p className="eyebrow">Visão geral · atualiza a cada 15 s</p>
+          <h1 className="mt-1.5 text-[28px] leading-tight font-semibold tracking-tight">Monitores</h1>
+          <p className="mt-1 text-sm text-fg-2">Disponibilidade e latência dos seus serviços.</p>
         </div>
         <Link to="/monitors/new" className={buttonClasses("primary")}>
           <Plus className="size-4" aria-hidden />
@@ -62,18 +64,22 @@ function Summary({ monitors }: { monitors: MonitorWithStats[] }) {
     : null;
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <StatTile label="Online" icon={<CircleCheck className="size-4 text-good" aria-hidden />} value={up} hint={`de ${monitors.length} monitores`} />
+    <StatGrid>
+      <StatTile label="Online" icon={<Swatch className="bg-good" />} value={up} hint={`de ${monitors.length} monitores`} />
       <StatTile
         label="Fora do ar"
-        icon={<CircleX className="size-4 text-bad" aria-hidden />}
-        value={down}
+        icon={<Swatch className="bg-bad" />}
+        value={<span className={down > 0 ? "text-bad" : undefined}>{down}</span>}
         hint={down === 0 ? "nenhum incidente ativo" : "incidente em andamento"}
       />
-      <StatTile label="Pausados" icon={<CirclePause className="size-4 text-muted" aria-hidden />} value={paused} hint="sem checagem" />
-      <StatTile label="Uptime médio" icon={<Gauge className="size-4 text-muted" aria-hidden />} value={formatUptime(avgUptime)} hint="últimas 24 horas" />
-    </div>
+      <StatTile label="Pausados" icon={<Swatch className="bg-idle" />} value={paused} hint="sem checagem" />
+      <StatTile label="Uptime médio" icon={<Swatch className="bg-accent" />} value={formatUptime(avgUptime)} hint="últimas 24 horas" />
+    </StatGrid>
   );
+}
+
+function Swatch({ className }: { className: string }) {
+  return <span className={clsx("size-2 shrink-0", className)} aria-hidden />;
 }
 
 function MonitorList({ monitors }: { monitors: MonitorWithStats[] }) {
@@ -82,7 +88,7 @@ function MonitorList({ monitors }: { monitors: MonitorWithStats[] }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="hidden grid-cols-[minmax(0,1fr)_120px_110px_110px_120px_20px] gap-4 border-b border-line px-5 py-2.5 text-xs font-medium tracking-wide text-muted uppercase md:grid">
+      <div className="hidden grid-cols-[minmax(0,1fr)_120px_110px_110px_120px_20px] gap-4 border-b border-line px-5 py-3 eyebrow md:grid">
         <span>Monitor</span>
         <span>Status</span>
         <span className="text-right">Uptime 24h</span>
@@ -111,7 +117,7 @@ function MonitorRow({ monitor }: { monitor: MonitorWithStats }) {
         <StatusDot status={monitor.status} />
         <div className="min-w-0">
           <p className="truncate font-medium text-fg">{monitor.name}</p>
-          <p className="truncate text-sm text-muted">
+          <p className="truncate font-mono text-[12.5px] text-muted">
             {monitor.url.replace(/^https?:\/\//, "")} · a cada {formatInterval(monitor.intervalSeconds)}
           </p>
         </div>
@@ -119,18 +125,18 @@ function MonitorRow({ monitor }: { monitor: MonitorWithStats }) {
 
       <div className="md:order-none">
         <StatusBadge status={monitor.status} size="sm" />
-        {monitor.status === "DOWN" && <p className="text-xs text-muted">há {formatSince(monitor.lastStatusChangeAt)}</p>}
+        {monitor.status === "DOWN" && <p className="mt-0.5 font-mono text-xs text-muted">há {formatSince(monitor.lastStatusChangeAt)}</p>}
       </div>
 
       {/* Métricas: linha extra no mobile, colunas no desktop */}
       <dl className="col-span-2 flex gap-6 pl-[22px] text-sm md:contents">
         <div className="md:text-right">
           <dt className="text-xs text-muted md:sr-only">Uptime 24h</dt>
-          <dd className="tabular text-fg">{formatUptime(monitor.last24h.uptimePercent)}</dd>
+          <dd className="font-mono text-fg">{formatUptime(monitor.last24h.uptimePercent)}</dd>
         </div>
         <div className="md:text-right">
           <dt className="text-xs text-muted md:sr-only">Latência média</dt>
-          <dd className="tabular text-fg">{formatLatency(monitor.last24h.avgLatencyMs)}</dd>
+          <dd className="font-mono text-fg">{formatLatency(monitor.last24h.avgLatencyMs)}</dd>
         </div>
         <div className="md:text-right">
           <dt className="text-xs text-muted md:sr-only">Último check</dt>

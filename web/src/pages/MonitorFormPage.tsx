@@ -86,7 +86,7 @@ function MonitorForm({ initial, monitorId }: { initial: MonitorInput; monitorId?
           <ArrowLeft className="size-4" aria-hidden />
           Voltar
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">{monitorId ? "Editar monitor" : "Novo monitor"}</h1>
+        <h1 className="mt-3 text-[28px] leading-tight font-semibold tracking-tight">{monitorId ? "Editar monitor" : "Novo monitor"}</h1>
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
