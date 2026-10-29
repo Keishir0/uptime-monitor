@@ -1,10 +1,14 @@
 import type { FastifyInstance } from "fastify";
+import { env } from "../../config/env.js";
 import { requireAuth } from "../../http/auth-guard.js";
 import { loginSchema, registerSchema, updateProfileSchema } from "./auth.schemas.js";
 import { authenticateUser, getUserById, registerUser, updateProfile } from "./auth.service.js";
 
 // Limite mais agressivo nas rotas públicas de credenciais (força bruta).
-const credentialsRateLimit = { rateLimit: { max: 10, timeWindow: "1 minute" } };
+// Desligado em teste: os testes de rota criam várias contas por arquivo.
+const credentialsRateLimit = {
+  rateLimit: env.NODE_ENV === "test" ? false : { max: 10, timeWindow: "1 minute" },
+};
 
 export async function authRoutes(app: FastifyInstance) {
   app.post("/register", { config: credentialsRateLimit }, async (request, reply) => {

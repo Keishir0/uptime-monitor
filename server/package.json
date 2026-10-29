@@ -19,6 +19,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "tsx --env-file=.env src/scripts/seed-demo.ts",
+    "db:test:prepare": "tsx --env-file=.env.test src/scripts/ensure-test-db.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -38,6 +39,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.16.3",
     "pino-pretty": "^13.2.0",
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",
