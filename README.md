@@ -70,6 +70,17 @@ As variáveis de ambiente estão documentadas em [`server/.env.example`](server/
 
 O Postgres fica exposto na porta **5433** do host e o Redis na **6379**.
 
+### Testes
+
+Os testes de rota usam um banco separado (`uptime_monitor_test`) no mesmo Postgres do Docker:
+
+```bash
+cd server
+cp .env.test.example .env.test   # .env.test não é versionado
+npm run db:test:prepare          # cria o banco de teste e aplica as migrations
+npm test
+```
+
 ### Conta demo
 
 Depois do `npm run db:seed`, entre com `demo@example.com` / `demo12345`. A página pública fica em http://localhost:5173/status/demo.

@@ -52,6 +52,9 @@ jobs:
 
       - run: npm ci
 
+      # Defaults de teste; as variáveis do job acima têm precedência sobre o arquivo.
+      - run: cp .env.test.example .env.test
+
       - run: npx prisma migrate deploy
 
       - run: npm run typecheck

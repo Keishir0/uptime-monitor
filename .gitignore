@@ -4,7 +4,7 @@ coverage/
 .env
 .env.*
 !.env.example
-!server/.env.test
+!.env.test.example
 *.log
 .DS_Store
 .claude/
